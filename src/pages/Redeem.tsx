@@ -1,4 +1,5 @@
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 import { motion } from "framer-motion";
 import { Gift, Lock, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -183,6 +184,7 @@ const Redeem = () => {
           </motion.div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

@@ -1,46 +1,68 @@
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 import { motion } from "framer-motion";
 import { Smartphone, Gamepad2, Bot, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Products = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('aktif', true)
+        .order('kategori', { ascending: true });
+
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const categories = [
     {
       id: "pulsa",
-      title: "Pulsa & Kuota",
+      title: "Pulsa & Kuota", 
       icon: Smartphone,
-      description: "Top-up pulsa dan paket data semua operator",
-      products: [
-        { name: "Pulsa Telkomsel 10K", price: 11000, operator: "Telkomsel" },
-        { name: "Pulsa XL 25K", price: 26000, operator: "XL" },
-        { name: "Kuota Indosat 3GB", price: 15000, operator: "Indosat" },
-      ]
+      description: "Top-up pulsa dan paket data semua operator"
     },
     {
-      id: "games",
+      id: "game",
       title: "Top-Up Game",
       icon: Gamepad2,
-      description: "Diamond, UC, dan currency game populer",
-      products: [
-        { name: "Mobile Legends 275 Diamond", price: 75000, game: "ML" },
-        { name: "PUBG Mobile 325 UC", price: 85000, game: "PUBG" },
-        { name: "Free Fire 70 Diamond", price: 12000, game: "FF" },
-      ]
+      description: "Diamond, UC, dan currency game populer"
     },
     {
-      id: "bots",
+      id: "bot",
       title: "Bot Premium",
       icon: Bot,
-      description: "Bot automation dengan lisensi lengkap",
-      products: [
-        { name: "WhatsApp Bot Premium", price: 150000, duration: "1 Bulan" },
-        { name: "Telegram Bot Business", price: 250000, duration: "1 Bulan" },
-        { name: "Social Media Bot", price: 300000, duration: "1 Bulan" },
-      ]
+      description: "Bot automation dengan lisensi lengkap"
     }
   ];
+
+  const filteredProducts = products.filter(product => 
+    product.nama_produk.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.kategori.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const getProductsByCategory = (categoryId) => {
+    return filteredProducts.filter(product => product.kategori === categoryId);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -67,67 +89,101 @@ const Products = () => {
             <Input
               placeholder="Cari produk..."
               className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </motion.div>
 
         {/* Categories */}
-        <div className="space-y-12">
-          {categories.map((category, categoryIndex) => (
-            <motion.section
-              key={category.id}
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: categoryIndex * 0.2 }}
-              className="space-y-6"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                  <category.icon className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">{category.title}</h2>
-                  <p className="text-muted-foreground">{category.description}</p>
-                </div>
-              </div>
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="text-muted-foreground mt-4">Memuat produk...</p>
+          </div>
+        ) : (
+          <div className="space-y-12">
+            {categories.map((category, categoryIndex) => {
+              const categoryProducts = getProductsByCategory(category.id);
+              
+              if (categoryProducts.length === 0 && searchQuery) return null;
+              
+              return (
+                <motion.section
+                  key={category.id}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: categoryIndex * 0.2 }}
+                  className="space-y-6"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                      <category.icon className="h-6 w-6 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold">{category.title}</h2>
+                      <p className="text-muted-foreground">{category.description}</p>
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {category.products.map((product, productIndex) => (
-                  <motion.div
-                    key={product.name}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: (categoryIndex * 0.2) + (productIndex * 0.1) }}
-                  >
-                    <Card className="hover:shadow-lg transition-shadow duration-300 group">
-                      <CardHeader>
-                        <CardTitle className="text-lg">{product.name}</CardTitle>
-                        <CardDescription>
-                          {'operator' in product && `Operator: ${product.operator}`}
-                          {'game' in product && `Game: ${product.game}`}
-                          {'duration' in product && `Durasi: ${product.duration}`}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold text-primary">
-                          Rp {product.price.toLocaleString('id-ID')}
-                        </div>
-                      </CardContent>
-                      <CardFooter>
-                        <Button 
-                          className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 group-hover:scale-105 transition-transform"
+                  {categoryProducts.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {categoryProducts.map((product, productIndex) => (
+                        <motion.div
+                          key={product.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: (categoryIndex * 0.2) + (productIndex * 0.1) }}
                         >
-                          Beli Sekarang
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))}
+                          <Card className="hover:shadow-lg transition-shadow duration-300 group">
+                            <CardHeader>
+                              <CardTitle className="text-lg">{product.nama_produk}</CardTitle>
+                              <CardDescription>
+                                {product.deskripsi}
+                                {product.stok > 0 ? (
+                                  <span className="block text-green-600 text-sm mt-1">Stok: {product.stok}</span>
+                                ) : (
+                                  <span className="block text-red-600 text-sm mt-1">Stok Habis</span>
+                                )}
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="text-2xl font-bold text-primary">
+                                Rp {product.harga.toLocaleString('id-ID')}
+                              </div>
+                            </CardContent>
+                            <CardFooter>
+                              <Button 
+                                className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 group-hover:scale-105 transition-transform"
+                                disabled={product.stok === 0}
+                              >
+                                {product.stok > 0 ? 'Beli Sekarang' : 'Stok Habis'}
+                              </Button>
+                            </CardFooter>
+                          </Card>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    !searchQuery && (
+                      <p className="text-center text-muted-foreground py-8">
+                        Belum ada produk dalam kategori ini.
+                      </p>
+                    )
+                  )}
+                </motion.section>
+              );
+            })}
+            
+            {searchQuery && filteredProducts.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Tidak ada produk yang ditemukan untuk "{searchQuery}"</p>
               </div>
-            </motion.section>
-          ))}
-        </div>
+            )}
+          </div>
+        )}
       </div>
+      <Footer />
     </div>
   );
 };
