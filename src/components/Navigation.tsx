@@ -15,13 +15,11 @@ export function Navigation({ className }: NavigationProps) {
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    // TODO: Implement login modal/page
-    console.log("Login clicked");
+    navigate('/auth');
   };
 
   const handleRegister = () => {
-    // TODO: Implement register modal/page  
-    console.log("Register clicked");
+    navigate('/auth');
   };
 
   const handleNavigation = (href: string) => {

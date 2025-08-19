@@ -7,11 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Redeem = () => {
   const [redeemCode, setRedeemCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  const { toast } = useToast();
 
   const handleRedeem = async () => {
     if (!redeemCode.trim()) {
@@ -19,20 +22,51 @@ const Redeem = () => {
       return;
     }
 
+    // Check if user is authenticated
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Anda harus login terlebih dahulu untuk menukar kode redeem.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     setMessage(null);
 
-    // Simulate API call
-    setTimeout(() => {
-      // Mock validation - replace with actual API call
-      if (redeemCode.toUpperCase() === 'ARFCODER2024') {
-        setMessage({ type: 'success', text: 'Kode berhasil ditukar! Akses Chat Bot telah diaktifkan.' });
-        setRedeemCode("");
+    try {
+      const { data, error } = await supabase.functions.invoke('redeem', {
+        body: { kode: redeemCode.trim() }
+      });
+
+      if (error) {
+        console.error('Redeem error:', error);
+        setMessage({ 
+          type: 'error', 
+          text: error.message || 'Terjadi kesalahan saat menukar kode' 
+        });
       } else {
-        setMessage({ type: 'error', text: 'Kode tidak valid atau sudah digunakan' });
+        setMessage({ 
+          type: 'success', 
+          text: `Selamat! Kode berhasil ditukar. ${data.reward || 'Reward telah ditambahkan ke akun Anda.'}` 
+        });
+        setRedeemCode("");
+        toast({
+          title: "Kode Berhasil Ditukar!",
+          description: data.reward || "Reward telah ditambahkan ke akun Anda.",
+        });
       }
-      setIsLoading(false);
-    }, 2000);
+    } catch (err) {
+      console.error('Redeem function error:', err);
+      setMessage({ 
+        type: 'error', 
+        text: 'Terjadi kesalahan saat menghubungi server' 
+      });
+    }
+
+    setIsLoading(false);
   };
 
   const features = [
