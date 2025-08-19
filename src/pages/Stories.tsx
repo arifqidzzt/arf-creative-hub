@@ -65,7 +65,13 @@ const Stories = () => {
             Baca cerita menarik atau ajukan permintaan untuk menjadi penulis
           </p>
           
-          <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
+          <Button 
+            className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+            onClick={() => {
+              // TODO: Open story submission form
+              console.log("Ajukan permintaan menulis clicked");
+            }}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Ajukan Permintaan Menulis
           </Button>
@@ -83,6 +89,10 @@ const Stories = () => {
               key={filter}
               variant={filter === 'Semua' ? 'default' : 'outline'}
               className={filter === 'Semua' ? 'bg-gradient-to-r from-primary to-secondary' : ''}
+              onClick={() => {
+                // TODO: Implement filter functionality
+                console.log(`Filter ${filter} clicked`);
+              }}
             >
               {filter}
             </Button>
@@ -147,6 +157,10 @@ const Stories = () => {
                   <Button 
                     variant="outline" 
                     className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                    onClick={() => {
+                      // TODO: Open story reader
+                      console.log(`Read story ${story.id} clicked`);
+                    }}
                   >
                     <BookOpen className="mr-2 h-4 w-4" />
                     Baca Cerita
@@ -171,7 +185,13 @@ const Stories = () => {
               Ajukan permintaan untuk menjadi kontributor cerita di platform kami. 
               Admin akan meninjau aplikasi Anda dan memberikan akses menulis jika disetujui.
             </p>
-            <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
+            <Button 
+              className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+              onClick={() => {
+                // TODO: Open writer application form
+                console.log("Ajukan sekarang clicked");
+              }}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Ajukan Sekarang
             </Button>

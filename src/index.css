@@ -103,7 +103,13 @@ All colors MUST be HSL.
 }
 
 @layer base {
-  * {
+/* Add smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Keep existing code */
+* {
     @apply border-border;
   }
 

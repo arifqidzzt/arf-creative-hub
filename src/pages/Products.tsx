@@ -156,6 +156,10 @@ const Products = () => {
                               <Button 
                                 className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 group-hover:scale-105 transition-transform"
                                 disabled={product.stok === 0}
+                                onClick={() => {
+                                  // TODO: Implement purchase flow
+                                  console.log(`Purchase product ${product.id} clicked`);
+                                }}
                               >
                                 {product.stok > 0 ? 'Beli Sekarang' : 'Stok Habis'}
                               </Button>

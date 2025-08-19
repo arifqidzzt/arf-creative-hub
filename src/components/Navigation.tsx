@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 interface NavigationProps {
   className?: string;
@@ -11,6 +12,22 @@ interface NavigationProps {
 export function Navigation({ className }: NavigationProps) {
   const { theme, setTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    // TODO: Implement login modal/page
+    console.log("Login clicked");
+  };
+
+  const handleRegister = () => {
+    // TODO: Implement register modal/page  
+    console.log("Register clicked");
+  };
+
+  const handleNavigation = (href: string) => {
+    setIsMenuOpen(false);
+    navigate(href);
+  };
 
   const menuItems = [
     { name: "Home", href: "/" },
@@ -42,9 +59,9 @@ export function Navigation({ className }: NavigationProps) {
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
             {menuItems.map((item, index) => (
-              <motion.a
+              <motion.button
                 key={item.name}
-                href={item.href}
+                onClick={() => handleNavigation(item.href)}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
@@ -54,7 +71,7 @@ export function Navigation({ className }: NavigationProps) {
                 <motion.div
                   className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary group-hover:w-full transition-all duration-300"
                 />
-              </motion.a>
+              </motion.button>
             ))}
           </div>
 
@@ -73,10 +90,10 @@ export function Navigation({ className }: NavigationProps) {
 
             {/* Login/Register */}
             <div className="hidden md:flex items-center space-x-2">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={handleLogin}>
                 Login
               </Button>
-              <Button size="sm" className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
+              <Button size="sm" className="bg-gradient-to-r from-primary to-secondary hover:opacity-90" onClick={handleRegister}>
                 Register
               </Button>
             </div>
@@ -104,20 +121,19 @@ export function Navigation({ className }: NavigationProps) {
             >
               <div className="py-4 space-y-4">
                 {menuItems.map((item) => (
-                  <a
+                  <button
                     key={item.name}
-                    href={item.href}
-                    className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => handleNavigation(item.href)}
+                    className="block w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {item.name}
-                  </a>
+                  </button>
                 ))}
                 <div className="pt-4 border-t space-y-2">
-                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                  <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleLogin}>
                     Login
                   </Button>
-                  <Button size="sm" className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90">
+                  <Button size="sm" className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90" onClick={handleRegister}>
                     Register
                   </Button>
                 </div>

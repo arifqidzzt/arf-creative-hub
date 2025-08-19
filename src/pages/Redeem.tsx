@@ -177,7 +177,10 @@ const Redeem = () => {
                 Kode redeem tersedia melalui event khusus, pembelian produk tertentu, 
                 atau promosi dari ArfCoder. Ikuti media sosial kami untuk update terbaru!
               </p>
-              <Button variant="outline">
+              <Button variant="outline" onClick={() => {
+                // TODO: Implement contact admin functionality
+                console.log("Hubungi admin clicked");
+              }}>
                 Hubungi Admin
               </Button>
             </div>

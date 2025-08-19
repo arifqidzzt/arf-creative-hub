@@ -1,8 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Code, Smartphone, Gamepad2, Bot } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 export function Hero() {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate('/products');
+  };
+
+  const handleViewProducts = () => {
+    navigate('/products');
+  };
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Animation */}
@@ -65,6 +75,7 @@ export function Hero() {
             <Button 
               size="lg" 
               className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-lg px-8 py-6"
+              onClick={handleGetStarted}
             >
               Mulai Sekarang
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -73,6 +84,7 @@ export function Hero() {
               variant="outline" 
               size="lg" 
               className="text-lg px-8 py-6"
+              onClick={handleViewProducts}
             >
               Lihat Produk
             </Button>
@@ -89,22 +101,26 @@ export function Hero() {
               { 
                 icon: Smartphone, 
                 title: "Pulsa & Kuota", 
-                desc: "Top-up otomatis ke nomor HP"
+                desc: "Top-up otomatis ke nomor HP",
+                onClick: () => navigate('/products')
               },
               { 
                 icon: Gamepad2, 
                 title: "Top-Up Game", 
-                desc: "Diamond & coin game favorit"
+                desc: "Diamond & coin game favorit",
+                onClick: () => navigate('/products')
               },
               { 
                 icon: Code, 
                 title: "Cerpen & Komik", 
-                desc: "Baca dan tulis cerita kreatif"
+                desc: "Baca dan tulis cerita kreatif",
+                onClick: () => navigate('/stories')
               },
               { 
                 icon: Bot, 
                 title: "Bot Premium", 
-                desc: "Automation bot dengan lisensi"
+                desc: "Automation bot dengan lisensi",
+                onClick: () => navigate('/products')
               },
             ].map((feature, index) => (
               <motion.div
@@ -112,7 +128,8 @@ export function Hero() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.8 + index * 0.1 }}
-                className="bg-card/50 backdrop-blur-sm border rounded-xl p-6 hover:bg-card/80 transition-all duration-300 group"
+                className="bg-card/50 backdrop-blur-sm border rounded-xl p-6 hover:bg-card/80 transition-all duration-300 group cursor-pointer"
+                onClick={feature.onClick}
               >
                 <feature.icon className="h-8 w-8 text-primary mb-4 group-hover:scale-110 transition-transform" />
                 <h3 className="font-semibold mb-2">{feature.title}</h3>
