@@ -152,57 +152,56 @@ const Checkout = () => {
     );
   };
 
-  const processCheckout = async () => {
+  const processCheckout = async (paymentMethod: string = "BRIVA") => {
     if (cartItems.length === 0) {
       toast({
-        title: "Cart Empty",
-        description: "Keranjang Anda kosong",
+        title: "Keranjang Kosong",
+        description: "Tambahkan produk ke keranjang terlebih dahulu",
         variant: "destructive",
       });
       return;
     }
 
     setIsProcessing(true);
-
+    
     try {
-      // Prepare checkout items
-      const checkoutItems = cartItems.map(item => ({
+      const items = cartItems.map(item => ({
+        id: item.product_id,
         name: item.products.nama_produk,
-        description: item.products.deskripsi,
+        description: item.products.deskripsi || "",
         price: item.products.harga,
         quantity: item.quantity,
-        product_id: item.product_id,
       }));
 
-      // Create checkout session
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
+      console.log("Creating Tripay payment with items:", items);
+
+      // Call Supabase function to create Tripay payment
+      const { data, error } = await supabase.functions.invoke('tripay-create-payment', {
         body: { 
-          items: checkoutItems,
-          type: "payment" // one-time payment
+          items,
+          payment_method: paymentMethod // Tripay payment method (BRIVA, MANDIRI, BCA, etc.)
         }
       });
 
       if (error) {
-        throw error;
+        console.error("Payment error:", error);
+        throw new Error(error.message || "Gagal membuat pembayaran");
       }
 
-      if (data.url) {
-        // Redirect to Stripe Checkout
-        window.open(data.url, '_blank');
-        
-        toast({
-          title: "Redirecting to Payment",
-          description: "Anda akan diarahkan ke halaman pembayaran",
-        });
-      } else {
-        throw new Error("No checkout URL received");
+      if (!data?.success || !data?.payment_url) {
+        throw new Error("URL pembayaran tidak ditemukan");
       }
+
+      console.log("Tripay payment created, redirecting to:", data.payment_url);
+      
+      // Redirect to Tripay payment page
+      window.location.href = data.payment_url;
 
     } catch (error: any) {
-      console.error('Checkout error:', error);
+      console.error("Process checkout error:", error);
       toast({
-        title: "Checkout Error",
-        description: error.message || "Terjadi kesalahan saat memproses checkout",
+        title: "Gagal Memproses Pembayaran", 
+        description: error.message || "Terjadi kesalahan saat memproses pembayaran",
         variant: "destructive",
       });
     } finally {
@@ -363,22 +362,84 @@ const Checkout = () => {
                   Pembayaran
                 </CardTitle>
                 <CardDescription>
-                  Anda akan diarahkan ke halaman pembayaran Stripe yang aman
+                  Pilih metode pembayaran yang Anda inginkan
                 </CardDescription>
               </CardHeader>
               
               <CardContent>
-                <Button 
-                  onClick={processCheckout}
-                  disabled={isProcessing || cartItems.length === 0}
-                  className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90"
-                  size="lg"
-                >
-                  {isProcessing ? 'Memproses...' : `Bayar Sekarang - Rp ${calculateTotal().toLocaleString('id-ID')}`}
-                </Button>
+                <div className="space-y-3">
+                  <div className="text-sm font-medium text-muted-foreground mb-2">
+                    Pilih Metode Pembayaran:
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      onClick={() => processCheckout("BRIVA")}
+                      disabled={isProcessing || cartItems.length === 0}
+                      variant="outline"
+                      size="sm"
+                    >
+                      BRI VA
+                    </Button>
+                    
+                    <Button 
+                      onClick={() => processCheckout("MANDIRI")}
+                      disabled={isProcessing || cartItems.length === 0}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Mandiri
+                    </Button>
+                    
+                    <Button 
+                      onClick={() => processCheckout("BCAVA")}
+                      disabled={isProcessing || cartItems.length === 0}
+                      variant="outline"
+                      size="sm"
+                    >
+                      BCA VA
+                    </Button>
+                    
+                    <Button 
+                      onClick={() => processCheckout("BNIVA")}
+                      disabled={isProcessing || cartItems.length === 0}
+                      variant="outline"
+                      size="sm"
+                    >
+                      BNI VA
+                    </Button>
+                    
+                    <Button 
+                      onClick={() => processCheckout("ALFAMART")}
+                      disabled={isProcessing || cartItems.length === 0}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Alfamart
+                    </Button>
+                    
+                    <Button 
+                      onClick={() => processCheckout("INDOMARET")}
+                      disabled={isProcessing || cartItems.length === 0}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Indomaret
+                    </Button>
+                  </div>
+                  
+                  <Button 
+                    onClick={() => processCheckout("QRIS")}
+                    disabled={isProcessing || cartItems.length === 0}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {isProcessing ? "Memproses..." : `Bayar dengan QRIS - Rp ${calculateTotal().toLocaleString('id-ID')}`}
+                  </Button>
+                </div>
                 
                 <p className="text-xs text-muted-foreground text-center mt-4">
-                  Pembayaran diproses dengan aman melalui Stripe
+                  Pembayaran diproses dengan aman melalui Tripay Indonesia
                 </p>
               </CardContent>
             </Card>
