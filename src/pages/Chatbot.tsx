@@ -256,36 +256,6 @@ const Chatbot = () => {
             </CardContent>
           </Card>
 
-          {/* Integration Info */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mt-8"
-          >
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-4 flex items-center gap-2">
-                  <Bot className="h-5 w-5" />
-                  Integrasi Python Script
-                </h3>
-                <div className="space-y-3 text-sm text-muted-foreground">
-                  <p>
-                    • UI Chatbot sudah siap untuk diintegrasikan dengan script Python Anda
-                  </p>
-                  <p>
-                    • Fungsi handleSendMessage() dapat dimodifikasi untuk memanggil API Python
-                  </p>
-                  <p>
-                    • Voice input sudah disiapkan untuk fitur speech-to-text
-                  </p>
-                  <p>
-                    • Real-time messaging dan history chat sudah tersedia
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
         </div>
       </div>
       

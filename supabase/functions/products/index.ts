@@ -81,6 +81,18 @@ serve(async (req) => {
         throw orderError;
       }
 
+      // Create license automatically after successful purchase
+      const { error: licenseError } = await supabaseClient.functions.invoke('licenses', {
+        body: { 
+          product_id: product_id, 
+          order_id: order.id 
+        }
+      });
+
+      if (licenseError) {
+        console.error('Error creating license:', licenseError);
+      }
+
       console.log('Order created:', order);
 
       return new Response(JSON.stringify({ 

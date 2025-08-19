@@ -1,21 +1,40 @@
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { motion } from "framer-motion";
-import { Smartphone, Gamepad2, Bot, Search } from "lucide-react";
+import { Smartphone, Gamepad2, Bot, Search, ShoppingCart, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [user, setUser] = useState<any>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchProducts();
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
+  };
 
   const fetchProducts = async () => {
     try {
@@ -32,6 +51,75 @@ const Products = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePurchase = async (product: any) => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Anda harus login terlebih dahulu untuk membeli produk.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
+    if (product.stok <= 0) {
+      toast({
+        title: "Stok Habis",
+        description: `Maaf, ${product.nama_produk} sedang tidak tersedia.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Memproses Pembelian",
+      description: `Sedang memproses pembelian ${product.nama_produk}...`,
+    });
+
+    try {
+      const { data, error } = await supabase.functions.invoke('products', {
+        body: { 
+          product_id: product.id, 
+          user_id: user.id 
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Pembelian Berhasil!",
+        description: `${product.nama_produk} berhasil dibeli. Order ID: ${data.order_id}`,
+      });
+
+      // Refresh products to update stock
+      fetchProducts();
+
+      // Redirect to licenses after 2 seconds
+      setTimeout(() => {
+        navigate('/licenses');
+      }, 2000);
+
+    } catch (error: any) {
+      console.error('Purchase error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Terjadi kesalahan saat memproses pembelian.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAddToCart = (product: any) => {
+    toast({
+      title: "Ditambahkan ke Keranjang",
+      description: `${product.nama_produk} ditambahkan ke keranjang belanja.`,
+    });
+    // TODO: Implement cart functionality
+    console.log('Added to cart:', product);
   };
 
   const categories = [
@@ -82,6 +170,16 @@ const Products = () => {
           <p className="text-lg text-muted-foreground mb-8">
             Temukan berbagai produk digital dengan harga terbaik
           </p>
+
+          {/* User Status */}
+          {user && (
+            <div className="mb-6 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+              <div className="flex items-center justify-center gap-2 text-green-700 dark:text-green-400">
+                <User className="h-4 w-4" />
+                <span className="text-sm">Login sebagai: {user.email}</span>
+              </div>
+            </div>
+          )}
           
           {/* Search Bar */}
           <div className="max-w-md mx-auto relative">
@@ -148,21 +246,27 @@ const Products = () => {
                               </CardDescription>
                             </CardHeader>
                             <CardContent>
-                              <div className="text-2xl font-bold text-primary">
+                              <div className="text-2xl font-bold text-primary mb-4">
                                 Rp {product.harga.toLocaleString('id-ID')}
                               </div>
                             </CardContent>
-                            <CardFooter>
+                            <CardFooter className="flex gap-2">
                               <Button 
-                                className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 group-hover:scale-105 transition-transform"
+                                className="flex-1 bg-gradient-to-r from-primary to-secondary hover:opacity-90"
                                 disabled={product.stok === 0}
-                                onClick={() => {
-                                  // TODO: Implement purchase flow
-                                  console.log(`Purchase product ${product.id} clicked`);
-                                }}
+                                onClick={() => handlePurchase(product)}
                               >
-                                {product.stok > 0 ? 'Beli Sekarang' : 'Stok Habis'}
+                                🛒 {product.stok > 0 ? 'Beli Sekarang' : 'Stok Habis'}
                               </Button>
+                              {product.stok > 0 && (
+                                <Button 
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => handleAddToCart(product)}
+                                >
+                                  <ShoppingCart className="h-4 w-4" />
+                                </Button>
+                              )}
                             </CardFooter>
                           </Card>
                         </motion.div>
