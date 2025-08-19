@@ -14,7 +14,289 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      licenses: {
+        Row: {
+          aktif: boolean | null
+          created_at: string | null
+          id: string
+          kode_lisensi: string | null
+          link_download: string | null
+          product_id: string | null
+          tutorial: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          aktif?: boolean | null
+          created_at?: string | null
+          id?: string
+          kode_lisensi?: string | null
+          link_download?: string | null
+          product_id?: string | null
+          tutorial?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          aktif?: boolean | null
+          created_at?: string | null
+          id?: string
+          kode_lisensi?: string | null
+          link_download?: string | null
+          product_id?: string | null
+          tutorial?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "licenses_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          pesan: string
+          status_baca: boolean | null
+          tipe: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          pesan: string
+          status_baca?: boolean | null
+          tipe?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          pesan?: string
+          status_baca?: boolean | null
+          tipe?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          created_at: string | null
+          data_input: Json | null
+          id: string
+          jumlah: number
+          metode_bayar: string | null
+          product_id: string | null
+          status_bayar: string | null
+          total: number
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_input?: Json | null
+          id?: string
+          jumlah?: number
+          metode_bayar?: string | null
+          product_id?: string | null
+          status_bayar?: string | null
+          total: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data_input?: Json | null
+          id?: string
+          jumlah?: number
+          metode_bayar?: string | null
+          product_id?: string | null
+          status_bayar?: string | null
+          total?: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      otp_codes: {
+        Row: {
+          created_at: string | null
+          expired_at: string
+          id: string
+          kode: string
+          used: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expired_at: string
+          id?: string
+          kode: string
+          used?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expired_at?: string
+          id?: string
+          kode?: string
+          used?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          aktif: boolean | null
+          created_at: string | null
+          deskripsi: string | null
+          harga: number
+          id: string
+          kategori: string
+          nama_produk: string
+          stok: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          aktif?: boolean | null
+          created_at?: string | null
+          deskripsi?: string | null
+          harga: number
+          id?: string
+          kategori: string
+          nama_produk: string
+          stok?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          aktif?: boolean | null
+          created_at?: string | null
+          deskripsi?: string | null
+          harga?: number
+          id?: string
+          kategori?: string
+          nama_produk?: string
+          stok?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          nama: string
+          role: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          nama: string
+          role?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          nama?: string
+          role?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      redeem_codes: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          kode: string
+          reward: string
+          status: string | null
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          kode: string
+          reward: string
+          status?: string | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          kode?: string
+          reward?: string
+          status?: string | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
+      stories: {
+        Row: {
+          admin_notes: string | null
+          created_at: string | null
+          id: string
+          isi: string
+          judul: string
+          kategori: string | null
+          penulis_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string | null
+          id?: string
+          isi: string
+          judul: string
+          kategori?: string | null
+          penulis_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string | null
+          id?: string
+          isi?: string
+          judul?: string
+          kategori?: string | null
+          penulis_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
