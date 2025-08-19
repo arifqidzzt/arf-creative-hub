@@ -120,45 +120,111 @@ export type Database = {
         }
         Relationships: []
       }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string | null
+          product_data: Json | null
+          product_id: string | null
+          quantity: number
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          product_data?: Json | null
+          product_id?: string | null
+          quantity?: number
+          total_price: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          product_data?: Json | null
+          product_id?: string | null
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           created_at: string | null
+          customer_email: string | null
+          customer_name: string | null
           data_input: Json | null
           id: string
           jumlah: number
           metode_bayar: string | null
+          notes: string | null
           payment_status: string | null
+          processed_at: string | null
           product_id: string | null
           status_bayar: string | null
           stripe_session_id: string | null
+          supplier_order_id: string | null
+          supplier_status: string | null
           total: number
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
           created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
           data_input?: Json | null
           id?: string
           jumlah?: number
           metode_bayar?: string | null
+          notes?: string | null
           payment_status?: string | null
+          processed_at?: string | null
           product_id?: string | null
           status_bayar?: string | null
           stripe_session_id?: string | null
+          supplier_order_id?: string | null
+          supplier_status?: string | null
           total: number
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
           data_input?: Json | null
           id?: string
           jumlah?: number
           metode_bayar?: string | null
+          notes?: string | null
           payment_status?: string | null
+          processed_at?: string | null
           product_id?: string | null
           status_bayar?: string | null
           stripe_session_id?: string | null
+          supplier_order_id?: string | null
+          supplier_status?: string | null
           total?: number
           updated_at?: string | null
           user_id?: string | null
@@ -376,6 +442,90 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      supplier_configs: {
+        Row: {
+          api_key_encrypted: string
+          api_url: string
+          balance: number | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          api_key_encrypted: string
+          api_url: string
+          balance?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          api_key_encrypted?: string
+          api_url?: string
+          balance?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      transaction_logs: {
+        Row: {
+          balance_after: number | null
+          balance_before: number | null
+          cost_amount: number | null
+          created_at: string
+          id: string
+          order_id: string | null
+          status: string
+          supplier_id: string | null
+          supplier_response: Json | null
+        }
+        Insert: {
+          balance_after?: number | null
+          balance_before?: number | null
+          cost_amount?: number | null
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          status?: string
+          supplier_id?: string | null
+          supplier_response?: Json | null
+        }
+        Update: {
+          balance_after?: number | null
+          balance_before?: number | null
+          cost_amount?: number | null
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          status?: string
+          supplier_id?: string | null
+          supplier_response?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_logs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transaction_logs_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_configs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
