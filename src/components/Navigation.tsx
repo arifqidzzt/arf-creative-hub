@@ -56,7 +56,7 @@ export function Navigation({ className }: NavigationProps) {
           </motion.div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-8 ml-12">
             {menuItems.map((item, index) => (
               <motion.button
                 key={item.name}
