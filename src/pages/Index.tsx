@@ -1,3 +1,4 @@
+// ArfCoder Landing Page
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
 

@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-// Updated to use Gamepad2 instead of GameController2
 import { ArrowRight, Code, Smartphone, Gamepad2, Bot } from "lucide-react";
 import { motion } from "framer-motion";
 
