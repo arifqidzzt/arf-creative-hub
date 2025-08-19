@@ -73,44 +73,13 @@ const Products = () => {
       return;
     }
 
-    toast({
-      title: "Memproses Pembelian",
-      description: `Sedang memproses pembelian ${product.nama_produk}...`,
+    // Navigate to checkout with product details
+    navigate('/checkout', { 
+      state: { 
+        product: product,
+        directPurchase: true 
+      } 
     });
-
-    try {
-      const { data, error } = await supabase.functions.invoke('products', {
-        body: { 
-          product_id: product.id, 
-          user_id: user.id 
-        }
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      toast({
-        title: "Pembelian Berhasil!",
-        description: `${product.nama_produk} berhasil dibeli. Order ID: ${data.order_id}`,
-      });
-
-      // Refresh products to update stock
-      fetchProducts();
-
-      // Redirect to licenses after 2 seconds
-      setTimeout(() => {
-        navigate('/licenses');
-      }, 2000);
-
-    } catch (error: any) {
-      console.error('Purchase error:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Terjadi kesalahan saat memproses pembelian.",
-        variant: "destructive",
-      });
-    }
   };
 
   const handleAddToCart = async (product: any) => {

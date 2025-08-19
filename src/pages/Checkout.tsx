@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { motion } from "framer-motion";
-import { ShoppingCart, CreditCard, Trash2, Plus, Minus } from "lucide-react";
+import { ShoppingCart, CreditCard, Trash2, Plus, Minus, Phone, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 interface CartItem {
@@ -28,8 +28,14 @@ const Checkout = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [productData, setProductData] = useState<any>({});
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if this is a direct purchase
+  const directProduct = location.state?.product;
+  const isDirectPurchase = location.state?.directPurchase;
 
   useEffect(() => {
     checkUserAndLoadCart();
@@ -56,7 +62,9 @@ const Checkout = () => {
         return;
       }
 
-      await loadCart();
+      if (!isDirectPurchase) {
+        await loadCart();
+      }
     } catch (error) {
       console.error('Error checking user:', error);
     }
@@ -153,25 +161,70 @@ const Checkout = () => {
   };
 
   const processCheckout = async (paymentMethod: string = "BRIVA") => {
-    if (cartItems.length === 0) {
-      toast({
-        title: "Keranjang Kosong",
-        description: "Tambahkan produk ke keranjang terlebih dahulu",
-        variant: "destructive",
-      });
-      return;
+    if (isDirectPurchase) {
+      // Direct purchase validation
+      if (!directProduct) {
+        toast({
+          title: "Error",
+          description: "Data produk tidak ditemukan",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate required data based on product category
+      if (directProduct.kategori === 'pulsa' && !productData.phone) {
+        toast({
+          title: "Data Tidak Lengkap",
+          description: "Nomor telepon harus diisi untuk top-up pulsa/kuota",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (directProduct.kategori === 'game' && (!productData.serverId || !productData.userId)) {
+        toast({
+          title: "Data Tidak Lengkap", 
+          description: "Server ID dan User ID harus diisi untuk top-up game",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      // Cart checkout validation
+      if (cartItems.length === 0) {
+        toast({
+          title: "Keranjang Kosong",
+          description: "Tambahkan produk ke keranjang terlebih dahulu",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     setIsProcessing(true);
     
     try {
-      const items = cartItems.map(item => ({
-        id: item.product_id,
-        name: item.products.nama_produk,
-        description: item.products.deskripsi || "",
-        price: item.products.harga,
-        quantity: item.quantity,
-      }));
+      let items;
+      
+      if (isDirectPurchase) {
+        items = [{
+          id: directProduct.id,
+          name: directProduct.nama_produk,
+          description: directProduct.deskripsi || "",
+          price: directProduct.harga,
+          quantity: 1,
+          data_input: productData
+        }];
+      } else {
+        items = cartItems.map(item => ({
+          id: item.product_id,
+          name: item.products.nama_produk,
+          description: item.products.deskripsi || "",
+          price: item.products.harga,
+          quantity: item.quantity,
+        }));
+      }
 
       console.log("Creating Tripay payment with items:", items);
 
@@ -243,81 +296,164 @@ const Checkout = () => {
         </motion.div>
 
         <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Cart Items */}
+          {/* Product Details or Cart Items */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5" />
-                  Keranjang Belanja ({cartItems.length})
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent>
-                {isLoading ? (
-                  <div className="text-center py-8">Loading...</div>
-                ) : cartItems.length === 0 ? (
-                  <div className="text-center py-8">
-                    <ShoppingCart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <p>Keranjang Anda kosong</p>
-                    <Button 
-                      className="mt-4"
-                      onClick={() => navigate('/products')}
-                    >
-                      Belanja Sekarang
-                    </Button>
+            {isDirectPurchase ? (
+              /* Direct Purchase Product Form */
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    {directProduct.kategori === 'pulsa' ? <Phone className="h-5 w-5" /> : <Gamepad2 className="h-5 w-5" />}
+                    Detail Pembelian
+                  </CardTitle>
+                  <CardDescription>
+                    {directProduct.nama_produk}
+                  </CardDescription>
+                </CardHeader>
+                
+                <CardContent className="space-y-4">
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-medium">{directProduct.nama_produk}</h4>
+                    <p className="text-sm text-muted-foreground">{directProduct.deskripsi}</p>
+                    <p className="font-bold text-primary text-lg mt-2">
+                      Rp {directProduct.harga.toLocaleString('id-ID')}
+                    </p>
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    {cartItems.map((item) => (
-                      <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg">
-                        <div className="flex-1">
-                          <h4 className="font-medium">{item.products.nama_produk}</h4>
-                          <p className="text-sm text-muted-foreground">{item.products.deskripsi}</p>
-                          <p className="font-bold text-primary">
-                            Rp {item.products.harga.toLocaleString('id-ID')}
-                          </p>
-                        </div>
-                        
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            disabled={item.quantity <= 1}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          
-                          <span className="w-8 text-center">{item.quantity}</span>
-                          
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                          
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => removeFromCart(item.id)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+
+                  {/* Dynamic input fields based on product category */}
+                  {directProduct.kategori === 'pulsa' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Nomor Telepon *</Label>
+                      <Input
+                        id="phone"
+                        placeholder="Masukkan nomor telepon (contoh: 081234567890)"
+                        value={productData.phone || ''}
+                        onChange={(e) => setProductData({...productData, phone: e.target.value})}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Pastikan nomor telepon benar untuk top-up pulsa/kuota
+                      </p>
+                    </div>
+                  )}
+
+                  {directProduct.kategori === 'game' && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="serverId">Server ID *</Label>
+                        <Input
+                          id="serverId"
+                          placeholder="Masukkan Server ID"
+                          value={productData.serverId || ''}
+                          onChange={(e) => setProductData({...productData, serverId: e.target.value})}
+                        />
                       </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      <div className="space-y-2">
+                        <Label htmlFor="userId">User ID *</Label>
+                        <Input
+                          id="userId"
+                          placeholder="Masukkan User ID"
+                          value={productData.userId || ''}
+                          onChange={(e) => setProductData({...productData, userId: e.target.value})}
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Pastikan Server ID dan User ID benar untuk top-up game
+                      </p>
+                    </>
+                  )}
+
+                  {directProduct.kategori === 'bot' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="contactInfo">Informasi Kontak *</Label>
+                      <Input
+                        id="contactInfo"
+                        placeholder="Email atau nomor WhatsApp"
+                        value={productData.contactInfo || ''}
+                        onChange={(e) => setProductData({...productData, contactInfo: e.target.value})}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Lisensi bot akan dikirim ke kontak ini
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              /* Cart Items */
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ShoppingCart className="h-5 w-5" />
+                    Keranjang Belanja ({cartItems.length})
+                  </CardTitle>
+                </CardHeader>
+                
+                <CardContent>
+                  {isLoading ? (
+                    <div className="text-center py-8">Loading...</div>
+                  ) : cartItems.length === 0 ? (
+                    <div className="text-center py-8">
+                      <ShoppingCart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                      <p>Keranjang Anda kosong</p>
+                      <Button 
+                        className="mt-4"
+                        onClick={() => navigate('/products')}
+                      >
+                        Belanja Sekarang
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {cartItems.map((item) => (
+                        <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg">
+                          <div className="flex-1">
+                            <h4 className="font-medium">{item.products.nama_produk}</h4>
+                            <p className="text-sm text-muted-foreground">{item.products.deskripsi}</p>
+                            <p className="font-bold text-primary">
+                              Rp {item.products.harga.toLocaleString('id-ID')}
+                            </p>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              disabled={item.quantity <= 1}
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                            
+                            <span className="w-8 text-center">{item.quantity}</span>
+                            
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                            
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => removeFromCart(item.id)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </motion.div>
 
           {/* Order Summary & Payment */}
@@ -335,19 +471,26 @@ const Checkout = () => {
               
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  {cartItems.map((item) => (
-                    <div key={item.id} className="flex justify-between text-sm">
-                      <span>{item.products.nama_produk} x{item.quantity}</span>
-                      <span>Rp {(item.products.harga * item.quantity).toLocaleString('id-ID')}</span>
+                  {isDirectPurchase ? (
+                    <div className="flex justify-between text-sm">
+                      <span>{directProduct.nama_produk} x1</span>
+                      <span>Rp {directProduct.harga.toLocaleString('id-ID')}</span>
                     </div>
-                  ))}
+                  ) : (
+                    cartItems.map((item) => (
+                      <div key={item.id} className="flex justify-between text-sm">
+                        <span>{item.products.nama_produk} x{item.quantity}</span>
+                        <span>Rp {(item.products.harga * item.quantity).toLocaleString('id-ID')}</span>
+                      </div>
+                    ))
+                  )}
                 </div>
                 
                 <div className="border-t pt-4">
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total:</span>
                     <span className="text-primary">
-                      Rp {calculateTotal().toLocaleString('id-ID')}
+                      Rp {isDirectPurchase ? directProduct.harga.toLocaleString('id-ID') : calculateTotal().toLocaleString('id-ID')}
                     </span>
                   </div>
                 </div>
@@ -430,11 +573,11 @@ const Checkout = () => {
                   
                   <Button 
                     onClick={() => processCheckout("QRIS")}
-                    disabled={isProcessing || cartItems.length === 0}
+                    disabled={isProcessing || (isDirectPurchase ? !directProduct : cartItems.length === 0)}
                     className="w-full"
                     size="lg"
                   >
-                    {isProcessing ? "Memproses..." : `Bayar dengan QRIS - Rp ${calculateTotal().toLocaleString('id-ID')}`}
+                    {isProcessing ? "Memproses..." : `Bayar dengan QRIS - Rp ${isDirectPurchase ? directProduct?.harga.toLocaleString('id-ID') : calculateTotal().toLocaleString('id-ID')}`}
                   </Button>
                 </div>
                 
