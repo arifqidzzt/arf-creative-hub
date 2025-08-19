@@ -113,13 +113,63 @@ const Products = () => {
     }
   };
 
-  const handleAddToCart = (product: any) => {
-    toast({
-      title: "Ditambahkan ke Keranjang",
-      description: `${product.nama_produk} ditambahkan ke keranjang belanja.`,
-    });
-    // TODO: Implement cart functionality
-    console.log('Added to cart:', product);
+  const handleAddToCart = async (product: any) => {
+    if (!user) {
+      toast({
+        title: "Login Diperlukan",
+        description: "Silakan login terlebih dahulu untuk menambahkan ke keranjang",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Check if item already exists in cart
+      const { data: existingItems, error: checkError } = await supabase
+        .from('cart_items')
+        .select('id, quantity')
+        .eq('user_id', user.id)
+        .eq('product_id', product.id);
+
+      if (checkError) throw checkError;
+
+      if (existingItems && existingItems.length > 0) {
+        // Update existing item quantity
+        const existingItem = existingItems[0];
+        const { error: updateError } = await supabase
+          .from('cart_items')
+          .update({ quantity: existingItem.quantity + 1 })
+          .eq('id', existingItem.id);
+
+        if (updateError) throw updateError;
+        toast({
+          title: "Jumlah Ditambah",
+          description: `Jumlah ${product.nama_produk} di keranjang ditambahkan!`,
+        });
+      } else {
+        // Add new item to cart
+        const { error: insertError } = await supabase
+          .from('cart_items')
+          .insert({
+            user_id: user.id,
+            product_id: product.id,
+            quantity: 1
+          });
+
+        if (insertError) throw insertError;
+        toast({
+          title: "Ditambahkan ke Keranjang",
+          description: `${product.nama_produk} berhasil ditambahkan ke keranjang!`,
+        });
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast({
+        title: "Error",
+        description: "Gagal menambahkan ke keranjang. Silakan coba lagi.",
+        variant: "destructive",
+      });
+    }
   };
 
   const categories = [
