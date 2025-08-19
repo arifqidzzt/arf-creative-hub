@@ -50,8 +50,8 @@ export function Navigation({ className }: NavigationProps) {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-sm">AC</span>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              ArfCoder
+            <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent ml-2">
+              ArfCODER
             </span>
           </motion.div>
 

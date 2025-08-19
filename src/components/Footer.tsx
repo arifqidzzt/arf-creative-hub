@@ -3,8 +3,8 @@ import { Code, Mail, MapPin, Phone } from "lucide-react";
 
 export const Footer = () => {
   return (
-    <footer className="bg-card border-t">
-      <div className="container mx-auto px-4 py-12">
+    <footer className="bg-gradient-to-br from-background via-muted/30 to-background border-t shadow-lg">
+      <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Section */}
           <motion.div
@@ -18,7 +18,7 @@ export const Footer = () => {
                 <Code className="h-5 w-5 text-primary-foreground" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                ArfCoder
+                ArfCODER
               </span>
             </div>
             <p className="text-muted-foreground">
@@ -112,7 +112,7 @@ export const Footer = () => {
         >
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-muted-foreground text-sm">
-              © 2024 ArfCoder. Semua hak dilindungi.
+              © 2024 ArfCODER. Semua hak dilindungi.
             </p>
             <div className="flex space-x-6">
               <a href="#" className="text-muted-foreground hover:text-primary text-sm transition-colors">
