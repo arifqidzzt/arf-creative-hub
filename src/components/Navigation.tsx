@@ -32,7 +32,7 @@ export function Navigation({ className }: NavigationProps) {
     { name: "Produk", href: "/products" },
     { name: "Cerpen/Komik", href: "/stories" },
     { name: "Redeem", href: "/redeem" },
-    { name: "Lisensi", href: "/license" },
+    { name: "Lisensi", href: "/licenses" },
     { name: "Chat Bot", href: "/chatbot" },
   ];
 
