@@ -1,5 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { motion } from "framer-motion";
+// Updated import to use correct Gamepad2 icon
 import { Smartphone, Gamepad2, Bot, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
