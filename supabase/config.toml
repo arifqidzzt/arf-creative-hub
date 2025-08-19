@@ -84,3 +84,9 @@ verify_jwt = true
 
 [functions.tripay-webhook]
 verify_jwt = false
+
+[functions.send-notification]
+verify_jwt = false
+
+[functions.send-payment-confirmation]
+verify_jwt = false
