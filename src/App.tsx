@@ -12,6 +12,9 @@ import Redeem from "./pages/Redeem";
 import Auth from "./pages/Auth";
 import Chatbot from "./pages/Chatbot";
 import Licenses from "./pages/Licenses";
+import Checkout from "./pages/Checkout";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import EmailVerification from "./pages/EmailVerification";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +34,9 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/chatbot" element={<Chatbot />} />
             <Route path="/licenses" element={<Licenses />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/email-verification" element={<EmailVerification />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

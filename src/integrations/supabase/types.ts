@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      cart_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string | null
+          quantity: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          quantity?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          quantity?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       licenses: {
         Row: {
           aktif: boolean | null
@@ -92,8 +127,10 @@ export type Database = {
           id: string
           jumlah: number
           metode_bayar: string | null
+          payment_status: string | null
           product_id: string | null
           status_bayar: string | null
+          stripe_session_id: string | null
           total: number
           updated_at: string | null
           user_id: string | null
@@ -104,8 +141,10 @@ export type Database = {
           id?: string
           jumlah?: number
           metode_bayar?: string | null
+          payment_status?: string | null
           product_id?: string | null
           status_bayar?: string | null
+          stripe_session_id?: string | null
           total: number
           updated_at?: string | null
           user_id?: string | null
@@ -116,8 +155,10 @@ export type Database = {
           id?: string
           jumlah?: number
           metode_bayar?: string | null
+          payment_status?: string | null
           product_id?: string | null
           status_bayar?: string | null
+          stripe_session_id?: string | null
           total?: number
           updated_at?: string | null
           user_id?: string | null
@@ -138,6 +179,7 @@ export type Database = {
           expired_at: string
           id: string
           kode: string
+          purpose: string | null
           used: boolean | null
           user_id: string | null
         }
@@ -146,6 +188,7 @@ export type Database = {
           expired_at: string
           id?: string
           kode: string
+          purpose?: string | null
           used?: boolean | null
           user_id?: string | null
         }
@@ -154,6 +197,7 @@ export type Database = {
           expired_at?: string
           id?: string
           kode?: string
+          purpose?: string | null
           used?: boolean | null
           user_id?: string | null
         }
@@ -294,6 +338,42 @@ export type Database = {
           penulis_id?: string | null
           status?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_tier: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }

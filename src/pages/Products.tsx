@@ -250,24 +250,24 @@ const Products = () => {
                                 Rp {product.harga.toLocaleString('id-ID')}
                               </div>
                             </CardContent>
-                            <CardFooter className="flex gap-2">
-                              <Button 
-                                className="flex-1 bg-gradient-to-r from-primary to-secondary hover:opacity-90"
-                                disabled={product.stok === 0}
-                                onClick={() => handlePurchase(product)}
-                              >
-                                🛒 {product.stok > 0 ? 'Beli Sekarang' : 'Stok Habis'}
-                              </Button>
-                              {product.stok > 0 && (
-                                <Button 
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={() => handleAddToCart(product)}
-                                >
-                                  <ShoppingCart className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </CardFooter>
+                      <div className="space-y-2">
+                        <Button 
+                          className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+                          onClick={() => handlePurchase(product)}
+                        >
+                          🛒 {product.stok > 0 ? 'Beli Sekarang' : 'Stok Habis'}
+                        </Button>
+                        {product.stok > 0 && (
+                          <Button 
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => handleAddToCart(product)}
+                          >
+                            <ShoppingCart className="h-4 w-4 mr-2" />
+                            + Keranjang
+                          </Button>
+                        )}
+                      </div>
                           </Card>
                         </motion.div>
                       ))}

@@ -34,6 +34,7 @@ export function Navigation({ className }: NavigationProps) {
     { name: "Redeem", href: "/redeem" },
     { name: "Lisensi", href: "/licenses" },
     { name: "Chat Bot", href: "/chatbot" },
+    { name: "Checkout", href: "/checkout" },
   ];
 
   return (
