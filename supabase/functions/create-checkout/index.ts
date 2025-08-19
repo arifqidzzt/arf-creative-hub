@@ -74,12 +74,18 @@ serve(async (req) => {
       quantity: item.quantity || 1,
     }));
 
-    // Create checkout session
+    // Create checkout session with Indonesian payment methods
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: lineItems,
       mode: type === "subscription" ? "subscription" : "payment",
+      payment_method_types: [
+        "card",           // Kartu kredit/debit
+        "promptpay",      // QRIS (available in Indonesia via PromptPay)
+        "grabpay",        // GrabPay e-wallet
+        "fpx"             // Bank transfer (Malaysia/Indonesia)
+      ],
       success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/payment-cancel`,
       metadata: {
