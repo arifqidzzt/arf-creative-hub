@@ -45,7 +45,7 @@ export function Navigation({ className }: NavigationProps) {
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center space-x-3"
+            className="flex items-center space-x-4"
           >
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-sm">AC</span>
